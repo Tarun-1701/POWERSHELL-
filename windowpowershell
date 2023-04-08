@@ -1,0 +1,27 @@
+# Set the folder path and output file path
+$folderPath = "C:\Path\To\Folder"
+$outputFile = "C:\Path\To\Output\File.csv"
+
+# Get the list of files in the folder
+$files = Get-ChildItem $folderPath
+
+# Create an empty array to store the results
+$results = @()
+
+# Loop through each file and calculate the checksums
+foreach ($file in $files) {
+    $md5 = Get-FileHash -Path $file.FullName -Algorithm MD5 | Select-Object -ExpandProperty Hash
+    $sha1 = Get-FileHash -Path $file.FullName -Algorithm SHA1 | Select-Object -ExpandProperty Hash
+    $crc32 = Get-FileHash -Path $file.FullName -Algorithm CRC32 | Select-Object -ExpandProperty Hash
+    
+    # Add the results to the array
+    $results += [PSCustomObject]@{
+        Name = $file.Name
+        MD5 = $md5
+        SHA1 = $sha1
+        CRC32 = $crc32
+    }
+}
+
+# Output the results to a CSV file
+$results | Export-Csv -Path $outputFile -NoTypeInformation
